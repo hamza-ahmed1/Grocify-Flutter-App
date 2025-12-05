@@ -257,26 +257,31 @@ class _HomeState extends State<Home> {
                   ),
 
                   // Section Header
+                  // Section Header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 16.0),
+                      padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Popular Products',
-                                style: TextStyle(
+                              // Dynamic title based on selected category
+                              Text(
+                                successState.selectedCategory == 'All'
+                                    ? 'Popular Products'
+                                    : successState.selectedCategory,
+                                style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Handpicked for you',
+                                successState.selectedCategory == 'All'
+                                    ? 'Handpicked for you'
+                                    : 'Showing all ${successState.selectedCategory} items',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey[600],
@@ -293,7 +298,6 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                   ),
-
                   // Products Grid
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -405,13 +409,18 @@ class _HomeState extends State<Home> {
               ),
               onTap: () {
                 Navigator.pop(context);
+                homeBloc.add(HomeCategorySelectedEvent(category: 'All'));
               },
             ),
 
+
+            // Category
             // Category
             ExpansionTile(
-              leading: const Icon(Icons.category_outlined,
-                  color: Color.fromARGB(255, 89, 81, 80)),
+              leading: const Icon(
+                Icons.category_outlined,
+                color: Color.fromARGB(255, 89, 81, 80),
+              ),
               title: const Text(
                 'Category',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -419,9 +428,22 @@ class _HomeState extends State<Home> {
               children: [
                 ListTile(
                   contentPadding: const EdgeInsets.only(left: 72),
+                  title: const Text('All Products'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    homeBloc.add(
+                      HomeCategorySelectedEvent(category: 'All'),
+                    );
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.only(left: 72),
                   title: const Text('Fruits & Vegetables'),
                   onTap: () {
                     Navigator.pop(context);
+                    homeBloc.add(
+                      HomeCategorySelectedEvent(category: 'Fruits & Vegetables'),
+                    );
                   },
                 ),
                 ListTile(
@@ -429,6 +451,9 @@ class _HomeState extends State<Home> {
                   title: const Text('Dairy & Eggs'),
                   onTap: () {
                     Navigator.pop(context);
+                    homeBloc.add(
+                      HomeCategorySelectedEvent(category: 'Dairy & Eggs'),
+                    );
                   },
                 ),
                 ListTile(
@@ -436,6 +461,9 @@ class _HomeState extends State<Home> {
                   title: const Text('Bakery'),
                   onTap: () {
                     Navigator.pop(context);
+                    homeBloc.add(
+                      HomeCategorySelectedEvent(category: 'Bakery'),
+                    );
                   },
                 ),
                 ListTile(
@@ -443,11 +471,13 @@ class _HomeState extends State<Home> {
                   title: const Text('Beverages'),
                   onTap: () {
                     Navigator.pop(context);
+                    homeBloc.add(
+                      HomeCategorySelectedEvent(category: 'Beverages'),
+                    );
                   },
                 ),
               ],
             ),
-
             // Cart
             ListTile(
               leading: const Icon(Icons.shopping_cart_outlined,

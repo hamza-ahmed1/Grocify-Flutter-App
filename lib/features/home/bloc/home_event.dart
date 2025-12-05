@@ -22,3 +22,9 @@ class HomeProductCartButtonClickedEvent extends HomeEvent {
 class HomeWishlistButtonNavigateEvent extends HomeEvent {}
 
 class HomeCartButtonNavigateEvent extends HomeEvent {}
+
+/// Fired when the user selects a category from the drawer.
+class HomeCategorySelectedEvent extends HomeEvent {
+  final String category;
+  HomeCategorySelectedEvent({required this.category});
+}
