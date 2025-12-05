@@ -4,8 +4,8 @@ import 'package:block_wishlist_and_cart_app/features/cart/ui/cart.dart';
 import 'package:block_wishlist_and_cart_app/features/home/bloc/home_bloc.dart';
 import 'package:block_wishlist_and_cart_app/features/home/ui/product_tile_widget.dart';
 import 'package:block_wishlist_and_cart_app/features/wishlist/ui/wishlist.dart';
+import 'package:block_wishlist_and_cart_app/features/orders/ui/order_history_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,19 +15,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  
+  final HomeBloc homeBloc = HomeBloc();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     homeBloc.add(HomeInitialEvent());
     super.initState();
   }
 
-  final HomeBloc homeBloc = HomeBloc();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  void dispose() {
+    homeBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    
     return BlocConsumer<HomeBloc, HomeState>(
       bloc: homeBloc,
       listenWhen: (previous, current) => current is HomeActionState,
@@ -70,7 +74,7 @@ class _HomeState extends State<Home> {
                   Text('Added to wishlist!'),
                 ],
               ),
-              backgroundColor: Colors.red[400],
+              backgroundColor: Colors.pinkAccent,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -83,18 +87,9 @@ class _HomeState extends State<Home> {
         switch (state.runtimeType) {
           case HomeLoadingState:
             return Scaffold(
-              backgroundColor: Colors.grey[50],
               body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: const Color(0xFF4CAF50)),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Loading fresh products...',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                    ),
-                  ],
+                child: CircularProgressIndicator(
+                  color: const Color(0xFF4CAF50),
                 ),
               ),
             );
@@ -122,7 +117,6 @@ class _HomeState extends State<Home> {
                     ),
                     flexibleSpace: FlexibleSpaceBar(
                       centerTitle: true,
-                      
                       title: Image.asset(
                         'assets/logo/app-logo.png',
                         height: 60,
@@ -186,67 +180,75 @@ class _HomeState extends State<Home> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xFF4CAF50),
-                            const Color(0xFF2E7D32),
+                          colors: const [
+                            Color(0xFF4CAF50),
+                            Color(0xFF2E7D32),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF4CAF50).withOpacity(0.3),
+                            color: Colors.green.withOpacity(0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
                         ],
                       ),
-                      child: Column(
+                      child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.shopping_bag_outlined,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                              const SizedBox(width: 10),
-                              const Text(
-                                'Fresh Groceries',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Delivered to your doorstep',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Text(
-                              'Free delivery on orders over 1000 PKR',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: const Icon(
+                              Icons.shopping_bag_outlined,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Fresh Groceries',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Delivered to your doorstep',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.15),
+                                    borderRadius: BorderRadius.circular(50),
+                                  ),
+                                  child: const Text(
+                                    'Free delivery on orders over 1000 PKR',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -257,118 +259,77 @@ class _HomeState extends State<Home> {
                   // Section Header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                      padding:
+                          const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'Popular Products',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Handpicked for you',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                             ],
                           ),
                           TextButton.icon(
                             onPressed: () {},
-                            icon: const Icon(Icons.tune, size: 20),
+                            icon: const Icon(Icons.tune, size: 18),
                             label: const Text('Filter'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: const Color(0xFF4CAF50),
-                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                  // Product Grid
+                  // Products Grid
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     sliver: SliverGrid(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 4,
-                            mainAxisSpacing: 4,
-                          ),
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return ProductTileWidget(
-                          homeBloc: homeBloc,
-                          productDataModel: successState.products[index],
-                        );
-                      }, childCount: successState.products.length),
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.75,
+                        crossAxisSpacing: 4,
+                        mainAxisSpacing: 4,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return ProductTileWidget(
+                            homeBloc: homeBloc,
+                            productDataModel: successState.products[index],
+                          );
+                        },
+                        childCount: successState.products.length,
+                      ),
                     ),
                   ),
 
-                  // Bottom Spacing
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 20),
+                  ),
                 ],
               ),
             );
 
-          case HomeErrorState:
-            return Scaffold(
-              backgroundColor: Colors.grey[50],
+          default:
+            return const Scaffold(
               body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Oops! Something went wrong',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Please try again later',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        homeBloc.add(HomeInitialEvent());
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                        foregroundColor: Colors.teal,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                child: Text('Something went wrong'),
               ),
             );
-
-          default:
-            return const SizedBox();
         }
       },
     );
@@ -383,31 +344,52 @@ class _HomeState extends State<Home> {
           children: [
             // Drawer Header
             DrawerHeader(
-              decoration: BoxDecoration(
-          
-              ),
+              decoration: BoxDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    'assets/logo/app-logo.png',
-                    height: 100,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.shopping_bag_outlined,
-                        size: 60,
-                        color: Color.fromARGB(255, 0, 0, 0),
-                      );
-                    },
-                  ),
-
-                  Text(
-                    'We delivere Fresh groceries! ',
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 56, 54, 54).withOpacity(0.9),
-                      fontSize: 14,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 56,
+                        width: 56,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8F5E9),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/logo/app-logo.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'GROCiFY',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                              color: Color(0xFF2E7D32),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'We deliver Fresh groceries!',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -415,7 +397,8 @@ class _HomeState extends State<Home> {
 
             // Home
             ListTile(
-              leading: const Icon(Icons.home, color: Colors.teal),
+              leading: const Icon(Icons.home_outlined,
+                  color: Color.fromARGB(255, 89, 81, 80)),
               title: const Text(
                 'Home',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -425,9 +408,10 @@ class _HomeState extends State<Home> {
               },
             ),
 
-            // Category (with dropdown)
+            // Category
             ExpansionTile(
-              leading: const Icon(Icons.category, color: Colors.teal),
+              leading: const Icon(Icons.category_outlined,
+                  color: Color.fromARGB(255, 89, 81, 80)),
               title: const Text(
                 'Category',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -438,7 +422,6 @@ class _HomeState extends State<Home> {
                   title: const Text('Fruits & Vegetables'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Navigate to category
                   },
                 ),
                 ListTile(
@@ -446,7 +429,6 @@ class _HomeState extends State<Home> {
                   title: const Text('Dairy & Eggs'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Navigate to category
                   },
                 ),
                 ListTile(
@@ -454,7 +436,6 @@ class _HomeState extends State<Home> {
                   title: const Text('Bakery'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Navigate to category
                   },
                 ),
                 ListTile(
@@ -462,7 +443,6 @@ class _HomeState extends State<Home> {
                   title: const Text('Beverages'),
                   onTap: () {
                     Navigator.pop(context);
-                    // Navigate to category
                   },
                 ),
               ],
@@ -470,10 +450,8 @@ class _HomeState extends State<Home> {
 
             // Cart
             ListTile(
-              leading: const Icon(
-                Icons.shopping_cart,
-                color: Colors.teal,
-              ),
+              leading: const Icon(Icons.shopping_cart_outlined,
+                  color: Color.fromARGB(255, 89, 81, 80)),
               title: const Text(
                 'Cart',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -486,7 +464,8 @@ class _HomeState extends State<Home> {
 
             // Wishlist
             ListTile(
-              leading: Icon(Icons.favorite_border_outlined, color: const Color.fromARGB(255, 89, 81, 80)),
+              leading: const Icon(Icons.favorite_border_outlined,
+                  color: Color.fromARGB(255, 89, 81, 80)),
               title: const Text(
                 'Wishlist',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -494,6 +473,30 @@ class _HomeState extends State<Home> {
               onTap: () {
                 Navigator.pop(context);
                 homeBloc.add(HomeWishlistButtonNavigateEvent());
+              },
+            ),
+
+            // Order History
+            ListTile(
+              leading: const Icon(
+                Icons.receipt_long,
+                color: Color(0xFF2E7D32),
+              ),
+              title: const Text(
+                'Order History',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OrderHistoryPage(),
+                  ),
+                );
               },
             ),
 
@@ -511,12 +514,12 @@ class _HomeState extends State<Home> {
                 ),
               ),
               onTap: () {
-                // Show confirmation dialog
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Logout'),
-                    content: const Text('Are you sure you want to logout?'),
+                    content:
+                        const Text('Are you sure you want to logout?'),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -527,7 +530,7 @@ class _HomeState extends State<Home> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          Navigator.pop(context); // close dialog
+                          Navigator.pop(context);
                           await FirebaseAuth.instance.signOut();
                         },
                         style: ElevatedButton.styleFrom(
